@@ -109,3 +109,21 @@ export async function fetchRecentStravaRuns(limit = 5) {
     return Array.isArray(data) ? data : [];
   } catch { return []; }
 }
+
+// ─── Pre-seed tokens for the app owner's account ──────────────────────────────
+// These are stored at first launch if no tokens exist yet.
+// Replace STRAVA_ACCESS_TOKEN/REFRESH_TOKEN via environment / secure store in production.
+export async function seedStravaTokensIfNeeded() {
+  const existing = await AsyncStorage.getItem(STORAGE_KEY);
+  if (existing) return; // already connected
+  // These come from env/build config — set via CI secrets in production
+  const accessToken = process.env.STRAVA_ACCESS_TOKEN;
+  const refreshToken = process.env.STRAVA_REFRESH_TOKEN;
+  if (accessToken && refreshToken) {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_at: 0, // force refresh on first use
+    }));
+  }
+}
