@@ -123,8 +123,8 @@ jobs:
           gcloud firebase test android run \
             --type robo \
             --app ${{ steps.find-apk.outputs.apk }} \
-            --device model=Pixel2,version=28,locale=en,orientation=portrait \
-            --device model=NexusLowRes,version=28,locale=en,orientation=portrait \
+            --device model=Pixel2.arm,version=28,locale=en,orientation=portrait \
+            --device model=MediumPhone.arm,version=28,locale=en,orientation=portrait \
             --timeout 3m \
             --results-bucket gs://jake-fitness-test-results \
             --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
