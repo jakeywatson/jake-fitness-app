@@ -115,26 +115,35 @@ jobs:
         with:
           project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
 
+      - name: List available devices
+        run: gcloud firebase test android models list 2>&1 | grep -E "VIRTUAL|Pixel|nexus" | head -20 || true
+
       - name: Run Firebase Test Lab (Robo crawl)
         run: |
           gcloud firebase test android run \
             --type robo \
             --app ${{ steps.find-apk.outputs.apk }} \
-            --device model=redfin,version=30,locale=en,orientation=portrait \
+            --device model=Pixel2,version=28,locale=en,orientation=portrait \
+            --device model=NexusLowRes,version=28,locale=en,orientation=portrait \
             --timeout 3m \
             --results-bucket gs://jake-fitness-test-results \
             --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
             2>&1 | tee firebase_output.txt
-          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_ENV
         continue-on-error: true
 
-      - name: Show test result
+      - name: Parse and display results
         run: |
-          if grep -q "outcome.*success\|Robo.*passed\|Test.*passed" firebase_output.txt 2>/dev/null; then
-            echo "✅ Firebase Robo test PASSED"
+          echo "=== Firebase Test Lab Results ==="
+          cat firebase_output.txt || true
+          echo ""
+          if grep -q "Passed" firebase_output.txt 2>/dev/null; then
+            echo "✅ ROBO TEST PASSED"
+          elif grep -q "Failed\|FAILED" firebase_output.txt 2>/dev/null; then
+            echo "❌ ROBO TEST FAILED — check Firebase console"
+          elif grep -q "Skipped\|Incompatible" firebase_output.txt 2>/dev/null; then
+            echo "⚠️  DEVICE INCOMPATIBLE — check device config"
           else
-            echo "⚠️  Firebase Robo test result — check output above"
-            cat firebase_output.txt || true
+            echo "ℹ️  Test completed — check Firebase console for full results"
           fi
 
       - name: Download test results
@@ -144,6 +153,7 @@ jobs:
           RESULTS=$(grep -o 'gs://[^ ]*' firebase_output.txt 2>/dev/null | head -1 || echo "")
           if [ -n "$RESULTS" ]; then
             gsutil -m cp -r "$RESULTS" ./test-results/ 2>/dev/null || true
+            echo "Results downloaded from: $RESULTS"
           fi
 
       - name: Upload Firebase results
