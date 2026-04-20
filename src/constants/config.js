@@ -12,12 +12,12 @@ export const GOOGLE_WEB_CLIENT_ID = "32155407115-tfn9srk14nd2n2the3rrv7db5dm9n2r
 // ─── Strava ───────────────────────────────────────────────────────────────────
 export const STRAVA_CLIENT_ID = "REPLACE_WITH_STRAVA_CLIENT_ID";
 export const STRAVA_CLIENT_SECRET = "REPLACE_WITH_STRAVA_CLIENT_SECRET";
-export const STRAVA_REDIRECT_URI = "jakefitness://strava-auth";
+export const STRAVA_REDIRECT_URI = "zerotofit://strava-auth";
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 export const ENTITLEMENT_PREMIUM = "premium";
-export const PRODUCT_MONTHLY = "jake_fitness_monthly";
-export const PRODUCT_ANNUAL = "jake_fitness_annual";
+export const PRODUCT_MONTHLY = "zerotofit_monthly";
+export const PRODUCT_ANNUAL = "zerotofit_annual";
 
 // ─── Free tier limits ─────────────────────────────────────────────────────────
 export const FREE_RUN_WEEKS = 2;

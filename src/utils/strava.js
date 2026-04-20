@@ -11,7 +11,7 @@ const STORAGE_KEY = 'strava_tokens';
 WebBrowser.maybeCompleteAuthSession();
 
 export async function connectStrava() {
-  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'jakefitness', path: 'strava-auth' });
+  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'zerotofit', path: 'strava-auth' });
   const authUrl = `${STRAVA_AUTH_URL}?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&approval_prompt=auto&scope=activity:write,activity:read_all`;
   const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
 
@@ -85,12 +85,12 @@ export async function postRunToStrava({ name, durationSecs, distanceMeters, star
       method: 'POST',
       headers: { Authorization: `Bearer ${tokens.access_token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: name || 'Run — Jake Fitness',
+        name: name || 'Run — Zero to Fit',
         type: 'Run',
         start_date_local: startDateLocal || new Date().toISOString(),
         elapsed_time: durationSecs,
         distance: distanceMeters || 0,
-        description: 'Logged via Jake Fitness app',
+        description: 'Logged via Zero to Fit',
         calories,
       }),
     });

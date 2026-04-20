@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Jake Fitness",
-    "slug": "jake-fitness",
+    "name": "Zero to Fit",
+    "slug": "zero-to-fit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f1117"
       },
-      "package": "com.jakewatson.fitness",
+      "package": "app.zeroto.fit",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -48,6 +48,10 @@
       }
     },
     "owner": "jakeywatson",
-    "scheme": "jakefitness"
+    "scheme": "zerotofit",
+    "web": {
+      "name": "Zero to Fit",
+      "shortName": "ZeroToFit"
+    }
   }
 }

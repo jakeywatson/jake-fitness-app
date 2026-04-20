@@ -75,7 +75,7 @@ export default function AuthScreen({ onAuth }) {
         {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.emoji}>💪</Text>
-          <Text style={styles.appName}>Jake Fitness</Text>
+          <Text style={styles.appName}>Zero to Fit</Text>
           <Text style={styles.tagline}>Simple runs. Simple gym.{'\n'}Told exactly what to do.</Text>
         </View>
 

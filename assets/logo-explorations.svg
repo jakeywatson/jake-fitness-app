@@ -1,0 +1,249 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#f8fafc"/>
+
+  <defs>
+    <!-- Reusable icon background -->
+    <rect id="bg" width="160" height="160" rx="32" fill="#0a0f1e"/>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#94a3b8" letter-spacing="3">ZERO TO FIT — DIAL LOGO EXPLORATIONS</text>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HELPER: arc math                        -->
+  <!-- cx,cy = centre  r = radius             -->
+  <!-- start/end in degrees (0=right, CCW)    -->
+  <!-- semicircle: 180° to 0° (left to right) -->
+  <!-- For a gauge: start=210°, end=-30°      -->
+  <!--   so arc sweeps 240° bottom-left→right -->
+  <!--                                         -->
+  <!-- Precise arc points:                     -->
+  <!-- x = cx + r*cos(deg)                     -->
+  <!-- y = cy - r*sin(deg)  (SVG y flips)      -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON A — Semicircle gauge, 180°, thick track                 -->
+  <!-- cx=100 cy=120 r=60                                            -->
+  <!-- start: 180° → x=40,  y=120                                   -->
+  <!-- end:     0° → x=160, y=120                                   -->
+  <!-- needle at 75%: 180°-75%*180° = 45° → x=142.4, y=77.6        -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(40,50)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <!-- track background: 180° arc -->
+    <path d="M 40 120 A 60 60 0 0 1 160 120" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+    <!-- track fill: 0→75% = 0°→135° from left = ends at 45° -->
+    <!-- at 45°: x=100+60*cos(45)=142.4, y=120-60*sin(45)=77.6 -->
+    <path d="M 40 120 A 60 60 0 0 1 142.4 77.6" fill="none" stroke="#3b82f6" stroke-width="16" stroke-linecap="round"/>
+    <!-- green endpoint cap -->
+    <circle cx="142.4" cy="77.6" r="9" fill="#4ade80"/>
+    <!-- grey start cap -->
+    <circle cx="40" cy="120" r="9" fill="#1e3a5f"/>
+    <!-- needle: from centre (100,120) to 75% point -->
+    <line x1="100" y1="120" x2="142.4" y2="77.6" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- pivot -->
+    <circle cx="100" cy="120" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="120" r="3" fill="#0a0f1e"/>
+    <!-- 0 label -->
+    <text x="34" y="144" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#475569">0</text>
+    <!-- fit label -->
+    <text x="148" y="144" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#4ade80">fit</text>
+    <!-- caption -->
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">A — Semicircle</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON B — 240° gauge (classic speedometer sweep)              -->
+  <!-- Start: 210° end: -30° (=330°)                                -->
+  <!-- at 210°: x=cx+r*cos(210)=cx-r*√3/2, y=cy-r*sin(210)=cy+r/2 -->
+  <!-- cx=100 cy=95 r=60                                             -->
+  <!-- start 210°: x=100-51.96=48.04, y=95+30=125                  -->
+  <!-- end  -30°:  x=100+51.96=151.96, y=95+30=125                 -->
+  <!-- needle 75%: 210° - 75%*240° = 210-180 = 30°                 -->
+  <!-- at 30°: x=100+60*cos(30)=151.96, y=95-60*sin(30)=65         -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(260,50)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <!-- track bg 240° -->
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 125" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+    <!-- fill 75%: from 210° sweeping 180° to land at 30° -->
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 65" fill="none" stroke="#3b82f6" stroke-width="16" stroke-linecap="round"/>
+    <!-- green cap at 30° -->
+    <circle cx="151.96" cy="65" r="9" fill="#4ade80"/>
+    <!-- grey start -->
+    <circle cx="48.04" cy="125" r="9" fill="#1e3a5f"/>
+    <!-- needle -->
+    <line x1="100" y1="95" x2="151.96" y2="65" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="100" cy="95" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="95" r="3" fill="#0a0f1e"/>
+    <text x="40" y="146" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#475569">0</text>
+    <text x="144" y="146" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#4ade80">fit</text>
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">B — 240° sweep</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON C — No needle, thick arc + glowing endpoint only        -->
+  <!-- Same geometry as A but bolder track, no needle               -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(480,50)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <!-- track bg -->
+    <path d="M 40 120 A 60 60 0 0 1 160 120" fill="none" stroke="#1e293b" stroke-width="22" stroke-linecap="round"/>
+    <!-- fill 70%: ends at 54° -->
+    <!-- at 54°: x=100+60*cos(54)=135.27, y=120-60*sin(54)=71.5 -->
+    <path d="M 40 120 A 60 60 0 0 1 135.27 71.5" fill="none" stroke="#3b82f6" stroke-width="22" stroke-linecap="round"/>
+    <!-- large green endpoint = the destination -->
+    <circle cx="135.27" cy="71.5" r="13" fill="#4ade80"/>
+    <!-- small muted start -->
+    <circle cx="40" cy="120" r="8" fill="#1e3a5f"/>
+    <text x="28" y="148" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#475569">0</text>
+    <text x="130" y="148" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#4ade80">fit</text>
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">C — No needle</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON D — Watch face: full circle, arc inside, ZTF centre     -->
+  <!-- cx=100 cy=90 r=58 (outer ring), arc on r=48 (inner)         -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(40,280)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <!-- outer ring -->
+    <circle cx="80" cy="82" r="60" fill="none" stroke="#1e293b" stroke-width="2"/>
+    <!-- gauge arc track on r=48, same 180° as A -->
+    <!-- at r=48: start 180°: x=80-48=32, y=82 / end 0°: x=128, y=82 -->
+    <path d="M 32 82 A 48 48 0 0 1 128 82" fill="none" stroke="#1e2a3a" stroke-width="14" stroke-linecap="round"/>
+    <!-- fill 80%: 180°-80%*180°=36° → x=80+48*cos36=118.8, y=82-48*sin36=53.8 -->
+    <path d="M 32 82 A 48 48 0 0 1 118.8 53.8" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="118.8" cy="53.8" r="8" fill="#4ade80"/>
+    <!-- needle -->
+    <line x1="80" y1="82" x2="118.8" y2="53.8" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="80" cy="82" r="6" fill="#e2e8f0"/>
+    <circle cx="80" cy="82" r="2.5" fill="#0a0f1e"/>
+    <!-- ZTF monogram in centre below needle -->
+    <text x="80" y="116" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="700" fill="#64748b" letter-spacing="3">ZTF</text>
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">D — Watch face</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON E — Tick marks, 5 divisions                             -->
+  <!-- Same arc as B (240°), ticks at 0%, 25%, 50%, 75%, 100%      -->
+  <!-- at 210°, 150°, 90°, 30°, -30°                               -->
+  <!-- cx=100 cy=95 r=60                                             -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(260,280)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 125" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round"/>
+    <!-- fill to 60%: 210° - 60%*240° = 210-144 = 66° -->
+    <!-- at 66°: x=100+60*cos66=124.4, y=95-60*sin66=40.2 -->
+    <path d="M 48.04 125 A 60 60 0 0 1 124.4 40.2" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round"/>
+    <!-- tick marks at r=72 (outer) to r=60 (inner) -->
+    <!-- 0% 210°: outer x=100-72*√3/2=37.7 y=95+36=131 → inner 48.04,125 -->
+    <line x1="37.7" y1="131" x2="48.04" y2="125" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 25% 150°: outer x=100-72*√3/2=37.7 y=95-36=59 → inner 48.04,65 -->
+    <!-- at 150°: x=100+60*cos150=100-51.96=48.04, y=95-60*sin150=95-30=65 -->
+    <!-- outer r=72: x=100-72*cos30=100-62.35=37.65, y=95-72*sin30=95-36=59 wait, 150°: cos150=-√3/2, sin150=1/2 -->
+    <!-- outer 150°: x=100+72*cos150=100-62.35=37.65, y=95-72*sin150=95-36=59 -->
+    <line x1="37.65" y1="59" x2="48.04" y2="65" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 50% 90°: x=100, y=95-60=35 outer: x=100, y=95-72=23 -->
+    <line x1="100" y1="23" x2="100" y2="35" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 75% 30°: x=100+60*cos30=151.96, y=95-60*sin30=65 outer: x=100+72*cos30=162.35, y=59 -->
+    <line x1="162.35" y1="59" x2="151.96" y2="65" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 100% -30°: x=151.96, y=125 outer: x=162.35, y=131 -->
+    <line x1="162.35" y1="131" x2="151.96" y2="125" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- needle at 60% -->
+    <line x1="100" y1="95" x2="124.4" y2="40.2" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="100" cy="95" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="95" r="3" fill="#0a0f1e"/>
+    <text x="38" y="148" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#475569">0</text>
+    <text x="141" y="148" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#4ade80">fit</text>
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">E — With ticks</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ICON F — Icon-only, max weight, E8 concept done right        -->
+  <!-- Arc caps as circles tell the 0→fit story                     -->
+  <!-- Semicircle, r=58, very thick                                  -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <g transform="translate(480,280)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <!-- track -->
+    <path d="M 22 115 A 58 58 0 0 1 138 115" fill="none" stroke="#1e2a3a" stroke-width="24" stroke-linecap="round"/>
+    <!-- fill 65%: at 180°-65%*180°=63° x=80+58*cos63=106.3, y=115-58*sin63=63.3 -->
+    <path d="M 22 115 A 58 58 0 0 1 106.3 63.3" fill="none" stroke="#3b82f6" stroke-width="24" stroke-linecap="round"/>
+    <!-- start cap: grey = zero -->
+    <circle cx="22" cy="115" r="13" fill="#334155"/>
+    <text x="22" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#0a0f1e">0</text>
+    <!-- end cap: green = fit, with text -->
+    <circle cx="138" cy="115" r="13" fill="#1e3a2a"/>
+    <text x="138" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#4ade80">fit</text>
+    <!-- progress marker -->
+    <circle cx="106.3" cy="63.3" r="11" fill="#4ade80"/>
+    <text x="80" y="175" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">F — Bold caps</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- BEST CANDIDATES at 64px — real icon simulation            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <text x="400" y="530" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#94a3b8" letter-spacing="2">BEST CANDIDATES AT 64px</text>
+
+  <!-- A at 64px — scale 64/160 = 0.4 -->
+  <g transform="translate(116,548) scale(0.4)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <path d="M 40 120 A 60 60 0 0 1 160 120" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 40 120 A 60 60 0 0 1 142.4 77.6" fill="none" stroke="#3b82f6" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="142.4" cy="77.6" r="9" fill="#4ade80"/>
+    <circle cx="40" cy="120" r="9" fill="#1e3a5f"/>
+    <line x1="100" y1="120" x2="142.4" y2="77.6" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="100" cy="120" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="120" r="3" fill="#0a0f1e"/>
+    <text x="34" y="144" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#475569">0</text>
+    <text x="148" y="144" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#4ade80">fit</text>
+  </g>
+  <text x="148" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">A</text>
+
+  <!-- B at 64px -->
+  <g transform="translate(228,548) scale(0.4)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 125" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 65" fill="none" stroke="#3b82f6" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="151.96" cy="65" r="9" fill="#4ade80"/>
+    <circle cx="48.04" cy="125" r="9" fill="#1e3a5f"/>
+    <line x1="100" y1="95" x2="151.96" y2="65" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="100" cy="95" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="95" r="3" fill="#0a0f1e"/>
+  </g>
+  <text x="260" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">B</text>
+
+  <!-- E at 64px -->
+  <g transform="translate(340,548) scale(0.4)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <path d="M 48.04 125 A 60 60 0 1 1 151.96 125" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 48.04 125 A 60 60 0 0 1 124.4 40.2" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round"/>
+    <line x1="37.7" y1="131" x2="48.04" y2="125" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="37.65" y1="59" x2="48.04" y2="65" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="100" y1="23" x2="100" y2="35" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="162.35" y1="59" x2="151.96" y2="65" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="162.35" y1="131" x2="151.96" y2="125" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="100" y1="95" x2="124.4" y2="40.2" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="100" cy="95" r="7" fill="#e2e8f0"/>
+    <circle cx="100" cy="95" r="3" fill="#0a0f1e"/>
+  </g>
+  <text x="372" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">E</text>
+
+  <!-- F at 64px -->
+  <g transform="translate(452,548) scale(0.4)">
+    <rect width="160" height="160" rx="32" fill="#0a0f1e"/>
+    <path d="M 22 115 A 58 58 0 0 1 138 115" fill="none" stroke="#1e2a3a" stroke-width="24" stroke-linecap="round"/>
+    <path d="M 22 115 A 58 58 0 0 1 106.3 63.3" fill="none" stroke="#3b82f6" stroke-width="24" stroke-linecap="round"/>
+    <circle cx="22" cy="115" r="13" fill="#334155"/>
+    <text x="22" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#0a0f1e">0</text>
+    <circle cx="138" cy="115" r="13" fill="#1e3a2a"/>
+    <text x="138" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#4ade80">fit</text>
+    <circle cx="106.3" cy="63.3" r="11" fill="#4ade80"/>
+  </g>
+  <text x="484" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#64748b">F</text>
+
+  <!-- footer -->
+  <text x="400" y="680" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#94a3b8">All arcs computed precisely — zero to fit · #0a0f1e · #3b82f6 · #4ade80</text>
+</svg>

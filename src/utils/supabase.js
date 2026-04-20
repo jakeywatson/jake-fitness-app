@@ -78,7 +78,7 @@ import * as AuthSession from 'expo-auth-session';
 WebBrowser.maybeCompleteAuthSession();
 
 export async function signInWithGoogle() {
-  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'jakefitness', path: 'auth/callback' });
+  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'zerotofit', path: 'auth/callback' });
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {

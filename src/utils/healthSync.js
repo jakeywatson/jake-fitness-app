@@ -38,7 +38,7 @@ export async function logWorkoutToHealth({ activityType, startTime, endTime, cal
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
         exerciseType,
-        title: title || 'Jake Fitness Workout',
+        title: title || 'Zero to Fit Workout',
       },
       {
         recordType: 'TotalCaloriesBurned',

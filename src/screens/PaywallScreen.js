@@ -140,11 +140,11 @@ export default function PaywallScreen({ onSubscribe, onContinueFree, onRestore }
           <Text style={styles.legalLink}>{restoring ? 'Restoring...' : 'Restore purchases'}</Text>
         </TouchableOpacity>
         <Text style={styles.legalDot}>·</Text>
-        <TouchableOpacity onPress={() => Linking.openURL('https://jake-fitness-tracker.netlify.app/privacy')}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://zeroto.fit/privacy')}>
           <Text style={styles.legalLink}>Privacy</Text>
         </TouchableOpacity>
         <Text style={styles.legalDot}>·</Text>
-        <TouchableOpacity onPress={() => Linking.openURL('https://jake-fitness-tracker.netlify.app/terms')}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://zeroto.fit/terms')}>
           <Text style={styles.legalLink}>Terms</Text>
         </TouchableOpacity>
       </View>

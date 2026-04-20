@@ -195,7 +195,7 @@ export default function SettingsScreen({ user, appState, dispatch, isPremium, on
           <View style={styles.divider} />
           <TouchableOpacity
             style={styles.row}
-            onPress={() => Linking.openURL('mailto:support@jakefitness.app')}
+            onPress={() => Linking.openURL('mailto:hello@zeroto.fit')}
           >
             <Text style={styles.rowLabel}>Contact support</Text>
             <Text style={styles.rowChevron}>›</Text>
@@ -203,7 +203,7 @@ export default function SettingsScreen({ user, appState, dispatch, isPremium, on
           <View style={styles.divider} />
           <TouchableOpacity
             style={styles.row}
-            onPress={() => Linking.openURL('https://jake-fitness-tracker.netlify.app/privacy')}
+            onPress={() => Linking.openURL('https://zeroto.fit/privacy')}
           >
             <Text style={styles.rowLabel}>Privacy policy</Text>
             <Text style={styles.rowChevron}>›</Text>
@@ -216,7 +216,7 @@ export default function SettingsScreen({ user, appState, dispatch, isPremium, on
         <Text style={styles.signOutText}>Sign out</Text>
       </TouchableOpacity>
 
-      <Text style={styles.version}>Jake Fitness · v1.0.0</Text>
+      <Text style={styles.version}>Zero to Fit · v1.0.0</Text>
     </ScrollView>
   );
 }
