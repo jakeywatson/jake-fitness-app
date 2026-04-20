@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:32155407115:android:32f60c762395d31f87080e",
         "android_client_info": {
-          "package_name": "com.jakewatson.jakefitness"
+          "package_name": "app.zeroto.fit"
         }
       },
       "oauth_client": [
