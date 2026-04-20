@@ -30,8 +30,11 @@ export default function RunScreen({ appState, dispatch }) {
   const sequence = buildSequence(weekData);
 
   const speak = useCallback((text) => {
-    Speech.stop();
-    Speech.speak(text, { language: 'en-GB', rate: 0.9, pitch: 1.0 });
+    Speech.stop().then(() => {
+      Speech.speak(text, { language: 'en-GB', rate: 0.9, pitch: 1.0 });
+    }).catch(() => {
+      Speech.speak(text, { language: 'en-GB', rate: 0.9, pitch: 1.0 });
+    });
   }, []);
 
   const totalRunSecs = weekData.intervals[0].secs * weekData.reps;
@@ -193,7 +196,7 @@ export default function RunScreen({ appState, dispatch }) {
           </View>
           <TouchableOpacity onPress={() => {
             clearInterval(timerRef.current); clearInterval(elapsedRef.current);
-            Speech.stop(); setScreen('overview');
+            Speech.stop().catch(()=>{}); setScreen('overview');
           }} style={styles.exitBtn}>
             <Text style={styles.exitBtnText}>✕ Exit</Text>
           </TouchableOpacity>

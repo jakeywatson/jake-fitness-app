@@ -29,7 +29,7 @@ function PlayerScreen({ workout, onComplete, onExit }) {
   const timerRef = useRef(null);
   const step = seq[idx];
 
-  const speak = useCallback(text => { Speech.stop(); Speech.speak(text, {language:'en-GB',rate:0.9}); },[]);
+  const speak = useCallback(text => { Speech.stop().catch(()=>{}).finally(()=>{ Speech.speak(text, {language:'en-GB',rate:0.9}); }); },[]);
 
   useEffect(()=>{ KeepAwake.activateKeepAwakeAsync(); return()=>KeepAwake.deactivateKeepAwake(); },[]);
 
@@ -69,7 +69,7 @@ function PlayerScreen({ workout, onComplete, onExit }) {
     <View style={[styles.player,{backgroundColor:step.type==='work'?'#0c1a0c':step.type==='rest'?'#0a1628':step.type==='done'?'#0d2018':COLORS.bg}]}>
       <View style={styles.playerTop}>
         <View><Text style={styles.playerTopName}>{workout.name}</Text><Text style={styles.playerTopSub}>{workout.sub}</Text></View>
-        <TouchableOpacity style={styles.exitBtn} onPress={()=>{clearInterval(timerRef.current);Speech.stop();onExit();}}>
+        <TouchableOpacity style={styles.exitBtn} onPress={()=>{clearInterval(timerRef.current);Speech.stop().catch(()=>{});onExit();}}>
           <Text style={styles.exitBtnText}>✕ Exit</Text>
         </TouchableOpacity>
       </View>
