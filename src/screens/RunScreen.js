@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'rea
 import * as Speech from 'expo-speech';
 import * as KeepAwake from 'expo-keep-awake';
 import { COLORS, RUN_WEEKS } from '../constants/data';
+import { FREE_RUN_WEEKS } from '../constants/config';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
@@ -17,7 +19,7 @@ function buildSequence(weekData) {
   return seq;
 }
 
-export default function RunScreen({ appState, dispatch }) {
+export default function RunScreen({ appState, dispatch, isPremium, onUpgrade }) {
   const { runWeek, runSession, completedRuns } = appState;
   const [screen, setScreen] = useState('overview'); // overview | running | done
   const [seqIdx, setSeqIdx] = useState(0);
@@ -144,8 +146,19 @@ export default function RunScreen({ appState, dispatch }) {
               </View>
             ))}
           </View>
-          <TouchableOpacity style={styles.startBtn} onPress={startRun}>
-            <Text style={styles.startBtnText}>▶  Start Run</Text>
+          <TouchableOpacity
+            style={styles.startBtn}
+            onPress={() => {
+              if (!isPremium && runWeek > FREE_RUN_WEEKS) {
+                onUpgrade && onUpgrade();
+              } else {
+                startRun();
+              }
+            }}
+          >
+            <Text style={styles.startBtnText}>
+              {!isPremium && runWeek > FREE_RUN_WEEKS ? '🔒  Unlock to Continue' : '▶  Start Run'}
+            </Text>
           </TouchableOpacity>
         </View>
 

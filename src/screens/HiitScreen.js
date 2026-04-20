@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import * as Speech from 'expo-speech';
 import * as KeepAwake from 'expo-keep-awake';
 import { COLORS, HIIT_MOVES, HIIT_WORKOUTS } from '../constants/data';
+import { FREE_HIIT_WORKOUTS } from '../constants/config';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
@@ -149,7 +151,7 @@ function PlayerScreen({ workout, onComplete, onExit }) {
   );
 }
 
-export default function HiitScreen({ appState, dispatch }) {
+export default function HiitScreen({ appState, dispatch, isPremium, onUpgrade }) {
   const { week=1, checked={} } = appState;
   const [activePlayer, setActivePlayer] = useState(null);
 
@@ -177,6 +179,19 @@ export default function HiitScreen({ appState, dispatch }) {
         const done=!!checked[key];
         const moves=wo.moves.map(id=>HIIT_MOVES.find(m=>m.id===id));
         const totalMins=Math.round((wo.work+wo.rest)*wo.moves.length*wo.rounds/60);
+        const isLocked = !isPremium && i >= FREE_HIIT_WORKOUTS;
+
+        if (isLocked) {
+          return (
+            <View key={wo.id} style={{marginBottom:10}}>
+              <UpgradePrompt
+                message={`${wo.name}: ${wo.sub} and more workouts are in Premium.`}
+                onUpgrade={onUpgrade}
+              />
+            </View>
+          );
+        }
+
         return (
           <View key={wo.id} style={[styles.woCard, done&&styles.woCardDone]}>
             <View style={styles.woHeader}>

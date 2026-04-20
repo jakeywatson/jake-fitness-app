@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS, GYM_EXERCISES } from '../constants/data';
+import { FREE_GYM_EXERCISES } from '../constants/config';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const getWeight = (ex, week) => ex.startWeight + Math.floor((week-1)/3)*ex.increment;
 
-export default function GymScreen({ appState, dispatch }) {
+export default function GymScreen({ appState, dispatch, isPremium, onUpgrade }) {
   const { week = 1, checked = {} } = appState;
   const [expanded, setExpanded] = useState(null);
 
@@ -29,11 +31,23 @@ export default function GymScreen({ appState, dispatch }) {
         <Text style={styles.phaseText}>{phaseText}</Text>
       </View>
 
-      {GYM_EXERCISES.map(ex => {
+      {GYM_EXERCISES.map((ex, exIdx) => {
         const w = getWeight(ex, week);
         const isOpen = expanded === ex.id;
         const setsDone = Array.from({length:ex.sets},(_,si)=>!!checked[`w${week}_gym_${ex.id}_${si}`]).filter(Boolean).length;
         const allDone = setsDone === ex.sets;
+        const isLocked = !isPremium && exIdx >= FREE_GYM_EXERCISES;
+
+        if (isLocked) {
+          return (
+            <View key={ex.id} style={{marginBottom:10}}>
+              <UpgradePrompt
+                message={`${ex.name} and ${GYM_EXERCISES.length - FREE_GYM_EXERCISES - (exIdx - FREE_GYM_EXERCISES) + 1 > 0 ? GYM_EXERCISES.length - FREE_GYM_EXERCISES : 1} more exercises are in Premium. Unlock the full routine.`}
+                onUpgrade={onUpgrade}
+              />
+            </View>
+          );
+        }
 
         return (
           <View key={ex.id} style={[styles.card, allDone && styles.cardDone, isOpen && styles.cardOpen]}>

@@ -6,7 +6,7 @@ import { COLORS, START_LBS, GOAL_LBS, MILESTONES } from '../constants/data';
 const lbsToStone = l => `${Math.floor(l/14)}st ${Math.round(l%14)}lb`;
 const todayStr = () => new Date().toISOString().split('T')[0];
 
-export default function WeightScreen({ appState, dispatch }) {
+export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade }) {
   const { weights = [], wegovy } = appState;
   const [stoneVal, setStoneVal] = useState('');
   const [lbVal, setLbVal] = useState('');
@@ -195,6 +195,28 @@ export default function WeightScreen({ appState, dispatch }) {
           ))
         )}
       </View>
+
+      {/* Account section */}
+      <View style={styles.accountCard}>
+        <Text style={styles.accountLabel}>ACCOUNT</Text>
+        {!isPremium && (
+          <TouchableOpacity style={styles.upgradeBtn} onPress={onUpgrade}>
+            <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
+            <Text style={styles.upgradeBtnSub}>Unlock full 12-week plans from £3.99/mo</Text>
+          </TouchableOpacity>
+        )}
+        {isPremium && (
+          <View style={styles.premiumBadge}>
+            <Text style={styles.premiumBadgeText}>⭐ Premium — all features unlocked</Text>
+          </View>
+        )}
+        <TouchableOpacity style={styles.signOutBtn} onPress={async () => {
+          const { signOut } = require('../utils/supabase');
+          await signOut();
+        }}>
+          <Text style={styles.signOutText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -244,4 +266,13 @@ const styles = StyleSheet.create({
   delBtn: { borderWidth:1, borderColor:COLORS.border2, borderRadius:6, paddingHorizontal:10, paddingVertical:6 },
   delBtnText: { color:COLORS.dim, fontSize:12 },
   clearAllText: { fontSize:11, color:COLORS.red, borderWidth:1, borderColor:COLORS.redDark, borderRadius:6, paddingHorizontal:8, paddingVertical:3 },
+  accountCard: { backgroundColor:COLORS.card, borderRadius:12, padding:16, marginTop:4, marginBottom:12, borderWidth:1, borderColor:COLORS.border, gap:10 },
+  accountLabel: { fontSize:10, letterSpacing:3, color:COLORS.muted, textTransform:'uppercase', marginBottom:4 },
+  upgradeBtn: { backgroundColor:'#1a1035', borderRadius:10, padding:14, borderWidth:1, borderColor:COLORS.purple },
+  upgradeBtnText: { fontSize:14, fontWeight:'700', color:COLORS.purpleLight, marginBottom:3 },
+  upgradeBtnSub: { fontSize:12, color:COLORS.muted },
+  premiumBadge: { backgroundColor:COLORS.greenBg, borderRadius:10, padding:12, borderWidth:1, borderColor:COLORS.greenDark },
+  premiumBadgeText: { fontSize:13, color:COLORS.green, fontWeight:'600' },
+  signOutBtn: { padding:12, alignItems:'center', borderWidth:1, borderColor:COLORS.border, borderRadius:10 },
+  signOutText: { color:COLORS.dim, fontSize:14 },
 });
