@@ -10,7 +10,7 @@ export const REVENUECAT_API_KEY_ANDROID = "test_TlXxqqUPXzfxjOpuEjkccPbXUkO";
 export const GOOGLE_WEB_CLIENT_ID = "32155407115-tfn9srk14nd2n2the3rrv7db5dm9n2rm.apps.googleusercontent.com";
 
 // ─── Strava ───────────────────────────────────────────────────────────────────
-export const STRAVA_CLIENT_ID = "REPLACE_WITH_STRAVA_CLIENT_ID";
+export const STRAVA_CLIENT_ID = "228019";
 export const STRAVA_CLIENT_SECRET = "REPLACE_WITH_STRAVA_CLIENT_SECRET";
 export const STRAVA_REDIRECT_URI = "zerotofit://strava-auth";
 
