@@ -5,6 +5,7 @@ import {
   ScrollView, ActivityIndicator,
 } from 'react-native';
 import { signIn, signUp, signInWithGoogle, signInWithApple } from '../utils/supabase';
+import { Image } from 'react-native';
 import { COLORS } from '../constants/data';
 
 export default function AuthScreen({ onAuth }) {
@@ -74,7 +75,11 @@ export default function AuthScreen({ onAuth }) {
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
         {/* Hero */}
         <View style={styles.hero}>
-          <Text style={styles.emoji}>💪</Text>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.appName}>Zero to Fit</Text>
           <Text style={styles.tagline}>Simple runs. Simple gym.{'\n'}Told exactly what to do.</Text>
         </View>
@@ -177,7 +182,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
   inner: { flexGrow: 1, padding: 24, paddingTop: 60 },
   hero: { alignItems: 'center', marginBottom: 32 },
-  emoji: { fontSize: 56, marginBottom: 12 },
+  logo: { width: 100, height: 100, marginBottom: 16 },
   appName: { fontSize: 32, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
   tagline: { fontSize: 16, color: COLORS.muted, textAlign: 'center', lineHeight: 24 },
   socialButtons: { gap: 10, marginBottom: 20 },
