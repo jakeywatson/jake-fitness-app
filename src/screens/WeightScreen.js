@@ -28,7 +28,7 @@ export default function WeightScreen({ appState, dispatch }) {
     let lbs;
     if (unit === 'stone') lbs = (parseFloat(stoneVal)||0)*14 + (parseFloat(lbVal)||0);
     else lbs = parseFloat(stoneVal);
-    if (!lbs || lbs < 100 || lbs > 500) { Alert.alert('Check weight', 'Please enter a valid weight.'); return; }
+    if (!lbs || lbs < 100 || lbs > 500) { Alert?.alert?.('Check weight', 'Please enter a valid weight.'); return; }
     const entry = { date: todayStr(), lbs: Math.round(lbs*10)/10 };
     const newWeights = [...weights.filter(w=>w.date!==entry.date), entry].sort((a,b)=>a.date.localeCompare(b.date));
     dispatch({ type:'SET_WEIGHTS', payload: newWeights });
