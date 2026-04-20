@@ -21,17 +21,19 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "FOREGROUND_SERVICE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "plugins": [
-      "expo-location",
-      "expo-keep-awake"
+      "expo-location"
     ],
     "extra": {
       "eas": {
-        "projectId": "jake-fitness"
+        "projectId": "507c8329-a0aa-4929-b66e-e664f20d38cb"
       }
-    }
+    },
+    "owner": "jakeywatson"
   }
 }
