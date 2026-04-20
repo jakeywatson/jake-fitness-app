@@ -35,6 +35,7 @@
           "minSdkVersion": 26
         }
       ],
+      "./plugins/withBundleInDebug",
       "expo-location",
       "expo-apple-authentication",
       [
