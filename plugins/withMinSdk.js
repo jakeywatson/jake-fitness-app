@@ -1,34 +1,27 @@
-const { withGradleProperties, withDangerousMod } = require('@expo/config-plugins');
-const fs = require('fs');
-const path = require('path');
+const { withGradleProperties } = require('@expo/config-plugins');
 
-// Write libs.versions.toml so Expo's autolinking plugin picks up minSdk
-function withVersionCatalog(config, { minSdkVersion = 26 } = {}) {
-  return withDangerousMod(config, [
-    'android',
-    async config => {
-      const gradleDir = path.join(config.modRequest.projectRoot, 'android', 'gradle');
-      const tomlPath = path.join(gradleDir, 'libs.versions.toml');
-      fs.mkdirSync(gradleDir, { recursive: true });
-      fs.writeFileSync(tomlPath, `[versions]\nminSdk = "${minSdkVersion}"\ncompileSdk = "35"\ntargetSdk = "35"\n`);
-      return config;
-    },
-  ]);
-}
-
-// Also set in gradle.properties as a belt-and-braces fallback
-function withGradlePropertiesMinSdk(config, { minSdkVersion = 26 } = {}) {
+/**
+ * Sets android.minSdkVersion in gradle.properties.
+ * 
+ * Expo's autolinking plugin reads react-native's gradle/libs.versions.toml
+ * which defaults minSdk to 24. It then checks for a Gradle property named
+ * "android.minSdkVersion" and uses that to override the catalog value.
+ * 
+ * react-native-health-connect requires minSdk >= 26 (Android 8.0).
+ */
+module.exports = function withMinSdk(config, { minSdkVersion = 26 } = {}) {
   return withGradleProperties(config, config => {
+    // Remove any existing entries for either property name
     config.modResults = config.modResults.filter(
-      item => !(item.type === 'property' && item.key === 'minSdk')
+      item => !(item.type === 'property' && 
+        (item.key === 'android.minSdkVersion' || item.key === 'minSdk'))
     );
-    config.modResults.push({ type: 'property', key: 'minSdk', value: String(minSdkVersion) });
+    // Set the property that Expo's autolinking plugin actually reads
+    config.modResults.push({
+      type: 'property',
+      key: 'android.minSdkVersion',
+      value: String(minSdkVersion),
+    });
     return config;
   });
-}
-
-module.exports = function withMinSdk(config, options = {}) {
-  config = withVersionCatalog(config, options);
-  config = withGradlePropertiesMinSdk(config, options);
-  return config;
 };
