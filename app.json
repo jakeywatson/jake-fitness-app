@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Jake Fitness",
+    "slug": "jake-fitness",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f1117"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f1117"
+      },
+      "package": "com.jakewatson.fitness",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "WAKE_LOCK"
+      ]
+    },
+    "plugins": [
+      "expo-location",
+      "expo-keep-awake"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "jake-fitness"
+      }
+    }
+  }
+}
