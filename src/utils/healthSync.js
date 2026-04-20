@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 // Conditional import — expo-health-connect is Android only
 let HealthConnect = null;
 try {
-  HealthConnect = require('expo-health-connect');
+  HealthConnect = require('react-native-health-connect');
 } catch (e) {}
 
 export async function initHealthConnect() {

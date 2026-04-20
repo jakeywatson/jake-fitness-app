@@ -14,7 +14,7 @@ module.exports = {
     '^expo-web-browser$': '<rootDir>/__mocks__/expo-web-browser.js',
     '^expo-apple-authentication$': '<rootDir>/__mocks__/expo-apple-authentication.js',
     '^expo-crypto$': '<rootDir>/__mocks__/expo-crypto.js',
-    '^expo-health-connect$': '<rootDir>/__mocks__/expo-health-connect.js',
+    '^react-native-health-connect$': '<rootDir>/__mocks__/react-native-health-connect.js',
     '^expo-notifications$': '<rootDir>/__mocks__/expo-notifications.js',
     '^expo-device$': '<rootDir>/__mocks__/expo-device.js',
     '^expo-secure-store$': '<rootDir>/__mocks__/expo-secure-store.js',

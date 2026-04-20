@@ -31,7 +31,7 @@
       "expo-location",
       "expo-apple-authentication",
       [
-        "expo-health-connect",
+        "react-native-health-connect",
         {
           "permissions": [
             "android.permission.health.READ_EXERCISE",
