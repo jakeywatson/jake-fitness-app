@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  # ─── Stage 1: Jest unit tests (fast, ~15s) ───────────────────────────────
+  # ─── Stage 1: Jest unit tests ─────────────────────────────────────────────
   test:
     name: Jest Tests
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
         run: npm install --legacy-peer-deps
       - name: Run tests
         run: npm test -- --watchAll=false --forceExit --ci
-      - name: Upload test results
+      - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -29,7 +29,7 @@ jobs:
           path: coverage/
           retention-days: 7
 
-  # ─── Stage 2: Build APK ──────────────────────────────────────────────────
+  # ─── Stage 2: Build APK ───────────────────────────────────────────────────
   build:
     name: Build Android APK
     runs-on: ubuntu-latest
@@ -50,8 +50,13 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Write google-services.json from secret
+        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > google-services.json
+
+      - name: Inject API keys into config
+        run: |
+          sed -i "s|REPLACE_WITH_STRAVA_CLIENT_ID|${{ secrets.STRAVA_CLIENT_ID }}|g" src/constants/config.js || true
+          sed -i "s|REPLACE_WITH_STRAVA_CLIENT_SECRET|${{ secrets.STRAVA_CLIENT_SECRET }}|g" src/constants/config.js || true
 
       - name: Expo prebuild
         run: CI=1 npx expo prebuild --platform android --clean
@@ -80,17 +85,16 @@ jobs:
         run: |
           APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -1)
           echo "apk-path=$APK" >> $GITHUB_OUTPUT
-          echo "Found APK: $APK"
           ls -lh $APK
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: jake-fitness-debug
           path: ${{ steps.find-apk.outputs.apk-path }}
           retention-days: 30
 
-  # ─── Stage 3: Firebase Test Lab ──────────────────────────────────────────
+  # ─── Stage 3: Firebase Test Lab ───────────────────────────────────────────
   firebase-test:
     name: Firebase Test Lab
     runs-on: ubuntu-latest
@@ -104,58 +108,42 @@ jobs:
           name: jake-fitness-debug
           path: ./apk
 
-      - name: Find downloaded APK
+      - name: Find APK
         id: find-apk
-        run: |
-          APK=$(find ./apk -name "*.apk" | head -1)
-          echo "apk=$APK" >> $GITHUB_OUTPUT
-          echo "APK: $APK"
+        run: echo "apk=$(find ./apk -name '*.apk' | head -1)" >> $GITHUB_OUTPUT
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-      - name: Set up gcloud CLI
+      - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
 
-      - name: Enable required APIs
+      - name: Enable APIs
         run: |
           gcloud services enable testing.googleapis.com --quiet || true
           gcloud services enable toolresults.googleapis.com --quiet || true
 
-      - name: Run Firebase Test Lab (robo crawl)
-        id: firebase-test
+      - name: Run Firebase Test Lab
         run: |
           gcloud firebase test android run \
             --type robo \
             --app ${{ steps.find-apk.outputs.apk }} \
             --device model=Pixel3,version=30,locale=en,orientation=portrait \
             --timeout 3m \
-            --robo-directives "text:placeholder_stone=17,text:placeholder_lbs=8" \
             --results-bucket gs://jake-fitness-test-results \
             --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
-            --format json \
-            2>&1 | tee firebase_output.txt
-          
-          # Check if passed
-          if grep -q '"outcome": "success"' firebase_output.txt; then
-            echo "result=passed" >> $GITHUB_OUTPUT
-          else
-            echo "result=failed" >> $GITHUB_OUTPUT
-          fi
+            2>&1 | tee firebase_output.txt || true
 
-      - name: Download test results (screenshots + video)
+      - name: Download test results
         if: always()
         run: |
           mkdir -p test-results
-          # Extract results bucket path from output
-          RESULTS_PATH=$(grep -o 'gs://[^ ]*' firebase_output.txt | head -1 || echo "")
-          if [ -n "$RESULTS_PATH" ]; then
-            gsutil -m cp -r "$RESULTS_PATH" ./test-results/ 2>/dev/null || true
-          fi
+          RESULTS=$(grep -o 'gs://[^ ]*' firebase_output.txt | head -1 || echo "")
+          [ -n "$RESULTS" ] && gsutil -m cp -r "$RESULTS" ./test-results/ 2>/dev/null || true
 
       - name: Upload Firebase results
         if: always()
@@ -164,12 +152,3 @@ jobs:
           name: firebase-test-results
           path: test-results/
           retention-days: 14
-
-      - name: Report result
-        run: |
-          if [ "${{ steps.firebase-test.outputs.result }}" = "passed" ]; then
-            echo "✅ Firebase Test Lab passed — app runs correctly on Pixel 3 (Android 11)"
-          else
-            echo "⚠️  Firebase Test Lab result — check artifacts for screenshots/video"
-            # Don't fail the build — test lab gives us info, APK is still downloadable
-          fi

@@ -1,20 +1,38 @@
 {
   "project_info": {
-    "project_number": "000000000000",
+    "project_number": "32155407115",
     "project_id": "jake-fitness",
-    "storage_bucket": "jake-fitness.appspot.com"
+    "storage_bucket": "jake-fitness.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+        "mobilesdk_app_id": "1:32155407115:android:32f60c762395d31f87080e",
         "android_client_info": {
           "package_name": "com.jakewatson.jakefitness"
         }
       },
-      "oauth_client": [],
-      "api_key": [{ "current_key": "PLACEHOLDER_REPLACE_WITH_REAL_KEY" }],
-      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+      "oauth_client": [
+        {
+          "client_id": "32155407115-tfn9srk14nd2n2the3rrv7db5dm9n2rm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHOiMmL4Ol08hnyNbzKz9pLsqp6JizLiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "32155407115-tfn9srk14nd2n2the3rrv7db5dm9n2rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
