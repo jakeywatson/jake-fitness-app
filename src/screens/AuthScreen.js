@@ -4,14 +4,15 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
   ScrollView, ActivityIndicator,
 } from 'react-native';
-import { signIn, signUp } from '../utils/supabase';
+import { signIn, signUp, signInWithGoogle, signInWithApple } from '../utils/supabase';
 import { COLORS } from '../constants/data';
 
 export default function AuthScreen({ onAuth }) {
-  const [mode, setMode] = useState('signin'); // signin | signup
+  const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -41,20 +42,76 @@ export default function AuthScreen({ onAuth }) {
     }
   };
 
+  const handleGoogle = async () => {
+    setError(''); setSocialLoading('google');
+    try {
+      const session = await signInWithGoogle();
+      if (session?.user) onAuth(session.user);
+    } catch (e) {
+      setError(e.message || 'Google sign-in failed');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  const handleApple = async () => {
+    setError(''); setSocialLoading('apple');
+    try {
+      const session = await signInWithApple();
+      if (session?.user) onAuth(session.user);
+    } catch (e) {
+      setError(e.message || 'Apple sign-in failed');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
-        {/* Logo / hero */}
+        {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.emoji}>💪</Text>
           <Text style={styles.appName}>Jake Fitness</Text>
           <Text style={styles.tagline}>Simple runs. Simple gym.{'\n'}Told exactly what to do.</Text>
         </View>
 
-        {/* Tab toggle */}
+        {/* Social sign-in — shown first, most prominent */}
+        <View style={styles.socialButtons}>
+          <TouchableOpacity style={styles.googleBtn} onPress={handleGoogle} disabled={!!socialLoading}>
+            {socialLoading === 'google'
+              ? <ActivityIndicator color="#1f1f1f" />
+              : <>
+                  <Text style={styles.googleIcon}>G</Text>
+                  <Text style={styles.googleText}>Continue with Google</Text>
+                </>
+            }
+          </TouchableOpacity>
+
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity style={styles.appleBtn} onPress={handleApple} disabled={!!socialLoading}>
+              {socialLoading === 'apple'
+                ? <ActivityIndicator color="#fff" />
+                : <>
+                    <Text style={styles.appleIcon}></Text>
+                    <Text style={styles.appleText}>Continue with Apple</Text>
+                  </>
+              }
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Divider */}
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Email/password toggle */}
         <View style={styles.toggle}>
           {['signin', 'signup'].map(m => (
             <TouchableOpacity
@@ -69,7 +126,6 @@ export default function AuthScreen({ onAuth }) {
           ))}
         </View>
 
-        {/* Form */}
         <View style={styles.form}>
           <Text style={styles.inputLabel}>Email</Text>
           <TextInput
@@ -96,30 +152,20 @@ export default function AuthScreen({ onAuth }) {
           {success ? <Text style={styles.successText}>{success}</Text> : null}
 
           <TouchableOpacity
-            style={[styles.submitBtn, loading && styles.submitBtnLoading]}
+            style={[styles.submitBtn, loading && { opacity: 0.7 }]}
             onPress={handleSubmit}
             disabled={loading}
           >
             {loading
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.submitBtnText}>
-                  {mode === 'signin' ? 'Sign in' : 'Create account'}
-                </Text>
+              : <Text style={styles.submitBtnText}>{mode === 'signin' ? 'Sign in' : 'Create account'}</Text>
             }
           </TouchableOpacity>
-
-          {mode === 'signin' && (
-            <TouchableOpacity style={styles.forgotBtn}>
-              <Text style={styles.forgotText}>Forgot password?</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
-        {/* Free trial note */}
         <View style={styles.trialNote}>
           <Text style={styles.trialText}>
-            Free forever for the basics.{'\n'}
-            Unlock everything for £3.99/month.
+            Free forever for the basics.{'\n'}Unlock everything for £3.99/month.
           </Text>
         </View>
       </ScrollView>
@@ -129,29 +175,33 @@ export default function AuthScreen({ onAuth }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
-  inner: { flexGrow: 1, padding: 24, paddingTop: 60, justifyContent: 'center' },
-  hero: { alignItems: 'center', marginBottom: 36 },
+  inner: { flexGrow: 1, padding: 24, paddingTop: 60 },
+  hero: { alignItems: 'center', marginBottom: 32 },
   emoji: { fontSize: 56, marginBottom: 12 },
   appName: { fontSize: 32, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
   tagline: { fontSize: 16, color: COLORS.muted, textAlign: 'center', lineHeight: 24 },
-  toggle: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 12, padding: 4, marginBottom: 24, borderWidth: 1, borderColor: COLORS.border },
+  socialButtons: { gap: 10, marginBottom: 20 },
+  googleBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 12, padding: 16, height: 54 },
+  googleIcon: { fontSize: 18, fontWeight: '700', color: '#4285F4', width: 24, textAlign: 'center' },
+  googleText: { fontSize: 15, fontWeight: '600', color: '#1f1f1f' },
+  appleBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, backgroundColor: '#000', borderRadius: 12, padding: 16, height: 54 },
+  appleIcon: { fontSize: 20, color: '#fff' },
+  appleText: { fontSize: 15, fontWeight: '600', color: '#fff' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
+  dividerText: { fontSize: 13, color: COLORS.muted },
+  toggle: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 12, padding: 4, marginBottom: 16, borderWidth: 1, borderColor: COLORS.border },
   toggleBtn: { flex: 1, padding: 12, borderRadius: 10, alignItems: 'center' },
   toggleBtnActive: { backgroundColor: COLORS.blueDark },
   toggleText: { fontSize: 14, color: COLORS.dim, fontWeight: '600' },
   toggleTextActive: { color: COLORS.blueLight },
-  form: { gap: 8 },
+  form: { gap: 4 },
   inputLabel: { fontSize: 12, color: COLORS.muted, marginBottom: 4, marginTop: 8, letterSpacing: 1 },
-  input: {
-    backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border,
-    borderRadius: 10, color: COLORS.text, padding: 14, fontSize: 15,
-  },
+  input: { backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, color: COLORS.text, padding: 14, fontSize: 15 },
   errorText: { color: COLORS.red, fontSize: 13, marginTop: 8, textAlign: 'center' },
   successText: { color: COLORS.green, fontSize: 13, marginTop: 8, textAlign: 'center' },
   submitBtn: { backgroundColor: COLORS.blue, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 16 },
-  submitBtnLoading: { opacity: 0.7 },
   submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  forgotBtn: { alignItems: 'center', marginTop: 12 },
-  forgotText: { color: COLORS.muted, fontSize: 13 },
-  trialNote: { marginTop: 32, alignItems: 'center' },
+  trialNote: { marginTop: 28, alignItems: 'center' },
   trialText: { fontSize: 12, color: COLORS.dim, textAlign: 'center', lineHeight: 20 },
 });

@@ -19,7 +19,7 @@ function buildSequence(weekData) {
   return seq;
 }
 
-export default function RunScreen({ appState, dispatch, isPremium, onUpgrade }) {
+export default function RunScreen({ appState, dispatch, isPremium, onUpgrade, postToFeed }) {
   const { runWeek, runSession, completedRuns } = appState;
   const [screen, setScreen] = useState('overview'); // overview | running | done
   const [seqIdx, setSeqIdx] = useState(0);
@@ -115,6 +115,16 @@ export default function RunScreen({ appState, dispatch, isPremium, onUpgrade }) 
     let newWeek = runWeek, newSession = runSession + 1;
     if (newSession > 3) { newSession = 1; newWeek = Math.min(runWeek + 1, 12); }
     dispatch({ type:'COMPLETE_RUN', payload: { completedRuns: newCompleted, runWeek: newWeek, runSession: newSession }});
+    // Log calorie burn
+    const weekData = RUN_WEEKS[runWeek - 1];
+    const durationMins = Math.round((weekData.warmup + weekData.cooldown + (weekData.intervals[0].secs + weekData.intervals[1].secs) * weekData.reps) / 60);
+    const weightKg = appState.weights?.length ? appState.weights[appState.weights.length-1].lbs * 0.453592 : 114;
+    const calories = Math.round(8.5 * weightKg * (durationMins / 60));
+    dispatch({ type: 'LOG_CALORIE_BURN', payload: {
+      type: 'run', name: `Run Week ${runWeek} · Session ${runSession}`,
+      durationMins, calories, date: new Date().toISOString().split('T')[0],
+    }});
+    if (postToFeed) postToFeed('run_complete', { week: runWeek, session: runSession, duration: `${durationMins}min` });
     setScreen('overview');
   };
 

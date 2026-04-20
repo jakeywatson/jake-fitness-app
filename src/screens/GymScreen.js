@@ -6,9 +6,10 @@ import UpgradePrompt from '../components/UpgradePrompt';
 
 const getWeight = (ex, week) => ex.startWeight + Math.floor((week-1)/3)*ex.increment;
 
-export default function GymScreen({ appState, dispatch, isPremium, onUpgrade }) {
+export default function GymScreen({ appState, dispatch, isPremium, onUpgrade, postToFeed }) {
   const { week = 1, checked = {} } = appState;
   const [expanded, setExpanded] = useState(null);
+  const [burnLogged, setBurnLogged] = useState(false);
 
   const phase = Math.floor((week-1)/3)+1;
   const restTime = ['90s','75s','60s','60s'][phase-1];
@@ -19,7 +20,28 @@ export default function GymScreen({ appState, dispatch, isPremium, onUpgrade }) 
     'Final push. These weights should feel heavy. If not, go up. Rest 60s.',
   ][phase-1];
 
-  const toggle = (key) => dispatch({ type:'TOGGLE_CHECK', payload: key });
+  const toggle = (key) => {
+    dispatch({ type:'TOGGLE_CHECK', payload: key });
+    // Check if all sets across all unlocked exercises are now complete
+    const newChecked = { ...checked, [key]: !checked[key] };
+    const unlockedExercises = GYM_EXERCISES.filter((_, i) => isPremium || i < FREE_GYM_EXERCISES);
+    const totalSets = unlockedExercises.reduce((sum, ex) => sum + ex.sets, 0);
+    const doneSets = unlockedExercises.reduce((sum, ex) =>
+      sum + Array.from({length: ex.sets}, (_, si) => newChecked[`w${week}_gym_${ex.id}_${si}`] ? 1 : 0).reduce((a,b)=>a+b,0), 0
+    );
+    if (doneSets === totalSets && !burnLogged) {
+      setBurnLogged(true);
+      const durationMins = phase <= 2 ? 40 : 50;
+      const weightKg = appState.weights?.length ? appState.weights[appState.weights.length-1].lbs * 0.453592 : 114;
+      const met = phase <= 2 ? 5.0 : 6.5;
+      const calories = Math.round(met * weightKg * (durationMins / 60));
+      dispatch({ type: 'LOG_CALORIE_BURN', payload: {
+        type: 'gym', name: `Gym Phase ${phase} · Week ${week}`,
+        durationMins, calories, date: new Date().toISOString().split('T')[0],
+      }});
+      if (postToFeed) postToFeed('workout_complete', { workout_name: `Gym Week ${week}`, duration: `${durationMins}min` });
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

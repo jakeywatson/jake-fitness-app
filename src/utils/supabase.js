@@ -70,3 +70,59 @@ export async function saveUserData(userId, data) {
     });
   } catch (e) {}
 }
+
+// ─── Social auth ──────────────────────────────────────────────────────────────
+import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
+
+WebBrowser.maybeCompleteAuthSession();
+
+export async function signInWithGoogle() {
+  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'jakefitness', path: 'auth/callback' });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: redirectUri,
+      skipBrowserRedirect: true,
+    },
+  });
+  if (error) throw error;
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri);
+  if (result.type !== 'success') return null;
+
+  const url = new URL(result.url);
+  const accessToken = url.searchParams.get('access_token');
+  const refreshToken = url.searchParams.get('refresh_token');
+  if (accessToken) {
+    const { data: session, error: sessionError } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    if (sessionError) throw sessionError;
+    return session;
+  }
+  return null;
+}
+
+export async function signInWithApple() {
+  let AppleAuthentication;
+  try { AppleAuthentication = require('expo-apple-authentication'); } catch { return null; }
+  try {
+    const cred = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+    });
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'apple',
+      token: cred.identityToken,
+    });
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    if (e.code !== 'ERR_REQUEST_CANCELED') throw e;
+    return null;
+  }
+}

@@ -19,6 +19,8 @@ import GymScreen from './src/screens/GymScreen';
 import HiitScreen from './src/screens/HiitScreen';
 import CommunityScreen from './src/screens/CommunityScreen';
 import FeedScreen from './src/screens/FeedScreen';
+import CaloriesScreen from './src/screens/CaloriesScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,7 +29,7 @@ const initialState = {
   runWeek: 1, runSession: 1, completedRuns: [],
   goalLbs: 196, trainingDays: 3, onboardingComplete: false,
   feedOptIn: false, area: null, fitnessLevel: 'beginner',
-  aiPlan: null,
+  aiPlan: null, calorieBurns: [], heightCm: 188, ageYears: 32,
 };
 
 function reducer(state, action) {
@@ -41,6 +43,8 @@ function reducer(state, action) {
     case 'SET_GOAL':      return { ...state, goalLbs: action.payload };
     case 'FEED_OPT_IN':   return { ...state, feedOptIn: true };
     case 'SET_AI_PLAN':   return { ...state, aiPlan: action.payload };
+    case 'LOG_CALORIE_BURN': return { ...state, calorieBurns: [...(state.calorieBurns||[]), action.payload].slice(-50) };
+    case 'SET_PROFILE':   return { ...state, ...action.payload };
     default:              return state;
   }
 }
@@ -184,6 +188,12 @@ export default function App() {
                 onOptIn={() => dispatch({ type: 'FEED_OPT_IN' })}
               />
             )}
+          </Tab.Screen>
+          <Tab.Screen name="Calories" options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>🔢</Text> }}>
+            {() => <CaloriesScreen {...screenProps} />}
+          </Tab.Screen>
+          <Tab.Screen name="Settings" options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>⚙️</Text> }}>
+            {() => <SettingsScreen user={user} appState={appState} dispatch={persistingDispatch} isPremium={isPremium} onUpgrade={() => setShowPaywall(true)} />}
           </Tab.Screen>
         </Tab.Navigator>
       </NavigationContainer>

@@ -151,7 +151,7 @@ function PlayerScreen({ workout, onComplete, onExit }) {
   );
 }
 
-export default function HiitScreen({ appState, dispatch, isPremium, onUpgrade }) {
+export default function HiitScreen({ appState, dispatch, isPremium, onUpgrade, postToFeed }) {
   const { week=1, checked={} } = appState;
   const [activePlayer, setActivePlayer] = useState(null);
 
@@ -161,7 +161,19 @@ export default function HiitScreen({ appState, dispatch, isPremium, onUpgrade })
     return (
       <PlayerScreen
         workout={wo}
-        onComplete={()=>{ dispatch({type:'TOGGLE_CHECK',payload:key}); setActivePlayer(null); }}
+        onComplete={()=>{
+          dispatch({type:'TOGGLE_CHECK',payload:key});
+          // Log calorie burn
+          const durationMins = Math.round((wo.work + wo.rest) * wo.moves.length * wo.rounds / 60);
+          const weightKg = appState.weights?.length ? appState.weights[appState.weights.length-1].lbs * 0.453592 : 114;
+          const calories = Math.round(9.0 * weightKg * (durationMins / 60));
+          dispatch({ type: 'LOG_CALORIE_BURN', payload: {
+            type: 'hiit', name: `${wo.name}: ${wo.sub}`,
+            durationMins, calories, date: new Date().toISOString().split('T')[0],
+          }});
+          if (postToFeed) postToFeed('workout_complete', { workout_name: wo.name, duration: `${durationMins}min` });
+          setActivePlayer(null);
+        }}
         onExit={()=>setActivePlayer(null)}
       />
     );

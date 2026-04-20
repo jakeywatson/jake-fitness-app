@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Real google-services.json contains secrets - use placeholder in repo
+# google-services.json

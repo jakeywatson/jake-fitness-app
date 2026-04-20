@@ -9,6 +9,7 @@ const STEPS = [
   { id: 'welcome',  title: "Let's get you started", subtitle: "We'll set up a plan that fits you. Takes 60 seconds." },
   { id: 'weight',   title: 'What do you weigh now?', subtitle: 'This helps us track your progress accurately.' },
   { id: 'goal',     title: 'What\'s your goal weight?', subtitle: 'We\'ll show your progress toward this.' },
+  { id: 'body',     title: 'A bit more about you', subtitle: 'Used to calculate your calorie targets accurately.' },
   { id: 'fitness',  title: 'How active are you right now?', subtitle: 'Be honest — we\'ll start you at the right level.' },
   { id: 'days',     title: 'How many days a week can you train?', subtitle: 'This sets your weekly plan.' },
   { id: 'ready',    title: 'Your plan is ready 🎉', subtitle: '' },
@@ -30,12 +31,10 @@ const DAYS_OPTIONS = [
 export default function OnboardingScreen({ user, onComplete }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [answers, setAnswers] = useState({
-    weightStone: '',
-    weightLbs: '',
-    goalStone: '',
-    goalLbs: '',
-    fitness: null,
-    days: 3,
+    weightStone: '', weightLbs: '',
+    goalStone: '', goalLbs: '',
+    heightCm: '', ageYears: '',
+    fitness: null, days: 3,
   });
 
   const step = STEPS[stepIdx];
@@ -45,6 +44,7 @@ export default function OnboardingScreen({ user, onComplete }) {
   const canAdvance = () => {
     if (step.id === 'weight') return (parseFloat(answers.weightStone) || 0) > 0;
     if (step.id === 'goal') return (parseFloat(answers.goalStone) || 0) > 0;
+    if (step.id === 'body') return (parseFloat(answers.heightCm) || 0) > 100 && (parseFloat(answers.ageYears) || 0) > 10;
     if (step.id === 'fitness') return answers.fitness !== null;
     return true;
   };
@@ -66,6 +66,8 @@ export default function OnboardingScreen({ user, onComplete }) {
         weights: [{ date: new Date().toISOString().split('T')[0], lbs: Math.round(startLbs * 10) / 10 }],
         goalLbs,
         trainingDays: answers.days,
+        heightCm: parseFloat(answers.heightCm) || 188,
+        ageYears: parseFloat(answers.ageYears) || 32,
         onboardingComplete: true,
       });
     } else {
@@ -172,6 +174,37 @@ export default function OnboardingScreen({ user, onComplete }) {
               </View>
             </View>
             <Text style={styles.hint}>Set a realistic goal. You can always adjust it later.</Text>
+          </View>
+        )}
+
+        {/* Height and age */}
+        {step.id === 'body' && (
+          <View style={styles.inputGroup}>
+            <View style={styles.inputRow}>
+              <View style={styles.inputWrap}>
+                <Text style={styles.inputLabel}>Height (cm)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={answers.heightCm}
+                  onChangeText={v => setAnswers(a => ({ ...a, heightCm: v }))}
+                  placeholder="185"
+                  placeholderTextColor={COLORS.muted}
+                  keyboardType="numeric"
+                />
+              </View>
+              <View style={styles.inputWrap}>
+                <Text style={styles.inputLabel}>Age</Text>
+                <TextInput
+                  style={styles.input}
+                  value={answers.ageYears}
+                  onChangeText={v => setAnswers(a => ({ ...a, ageYears: v }))}
+                  placeholder="32"
+                  placeholderTextColor={COLORS.muted}
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+            <Text style={styles.hint}>Used only to calculate your daily calorie targets. Never shared.</Text>
           </View>
         )}
 
