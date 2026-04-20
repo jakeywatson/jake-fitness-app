@@ -25,9 +25,16 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "minSdkVersion": 26
     },
     "plugins": [
+      [
+        "./plugins/withMinSdk",
+        {
+          "minSdkVersion": 26
+        }
+      ],
       "expo-location",
       "expo-apple-authentication",
       [
