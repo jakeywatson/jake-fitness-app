@@ -48,14 +48,8 @@ jobs:
 
       - name: Inject credentials into config
         run: |
-          # Strava
           sed -i "s|REPLACE_WITH_STRAVA_CLIENT_ID|${{ secrets.STRAVA_CLIENT_ID }}|g" src/constants/config.js || true
           sed -i "s|REPLACE_WITH_STRAVA_CLIENT_SECRET|${{ secrets.STRAVA_CLIENT_SECRET }}|g" src/constants/config.js || true
-
-      - name: Inject Strava tokens as env for pre-seed
-        run: |
-          echo "STRAVA_ACCESS_TOKEN=${{ secrets.STRAVA_ACCESS_TOKEN }}" >> $GITHUB_ENV
-          echo "STRAVA_REFRESH_TOKEN=${{ secrets.STRAVA_REFRESH_TOKEN }}" >> $GITHUB_ENV
 
       - name: Expo prebuild
         run: CI=1 npx expo prebuild --platform android --clean
@@ -121,12 +115,7 @@ jobs:
         with:
           project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
 
-      - name: Enable APIs
-        run: |
-          gcloud services enable testing.googleapis.com --quiet || true
-          gcloud services enable toolresults.googleapis.com --quiet || true
-
-      - name: Run Firebase Test Lab
+      - name: Run Firebase Test Lab (Robo crawl)
         run: |
           gcloud firebase test android run \
             --type robo \
@@ -135,14 +124,27 @@ jobs:
             --timeout 3m \
             --results-bucket gs://jake-fitness-test-results \
             --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
-            2>&1 | tee firebase_output.txt || true
+            2>&1 | tee firebase_output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_ENV
+        continue-on-error: true
+
+      - name: Show test result
+        run: |
+          if grep -q "outcome.*success\|Robo.*passed\|Test.*passed" firebase_output.txt 2>/dev/null; then
+            echo "✅ Firebase Robo test PASSED"
+          else
+            echo "⚠️  Firebase Robo test result — check output above"
+            cat firebase_output.txt || true
+          fi
 
       - name: Download test results
         if: always()
         run: |
           mkdir -p test-results
-          RESULTS=$(grep -o 'gs://[^ ]*' firebase_output.txt | head -1 || echo "")
-          [ -n "$RESULTS" ] && gsutil -m cp -r "$RESULTS" ./test-results/ 2>/dev/null || true
+          RESULTS=$(grep -o 'gs://[^ ]*' firebase_output.txt 2>/dev/null | head -1 || echo "")
+          if [ -n "$RESULTS" ]; then
+            gsutil -m cp -r "$RESULTS" ./test-results/ 2>/dev/null || true
+          fi
 
       - name: Upload Firebase results
         if: always()
@@ -150,4 +152,5 @@ jobs:
         with:
           name: firebase-test-results
           path: test-results/
+          if-no-files-found: warn
           retention-days: 14
