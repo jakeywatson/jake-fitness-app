@@ -133,6 +133,7 @@ jobs:
             --device model=Pixel2.arm,version=28,locale=en,orientation=portrait \
             --device model=MediumPhone.arm,version=28,locale=en,orientation=portrait \
             --timeout 5m \
+            --grant-permissions all \
             --robo-directives \
               "ignore:google-btn=,text:email-input=robot@zeroto.fit,text:password-input=RobotTest2026!" \
             --results-bucket gs://jake-fitness-test-results \
