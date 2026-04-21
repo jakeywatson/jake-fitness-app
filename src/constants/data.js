@@ -67,12 +67,5 @@ export const MILESTONES = [
   {lbs:196,label:"🎯 Goal — 14st"},
 ];
 
-export const COLORS = {
-  bg:"#0f1117", card:"#161c2a", border:"#1e293b", border2:"#334155",
-  text:"#e2e8f0", muted:"#64748b", dim:"#475569",
-  blue:"#3b82f6", blueLight:"#93c5fd", blueDark:"#1e3a5f",
-  green:"#4ade80", greenDark:"#166534", greenBg:"#0f1f1a",
-  purple:"#7c3aed", purpleLight:"#c4b5fd", purpleDark:"#2e1065",
-  red:"#f87171", redDark:"#7f1d1d",
-  orange:"#f97316", yellow:"#facc15",
-};
+// COLORS re-exported from theme for backward compatibility
+export { COLORS } from './theme';
