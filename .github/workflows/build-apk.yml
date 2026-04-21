@@ -118,12 +118,27 @@ jobs:
       - name: List available devices
         run: gcloud firebase test android models list 2>&1 | grep -E "VIRTUAL|Pixel|nexus" | head -20 || true
 
-      - name: Create test account in Supabase
+      - name: Ensure test account exists with full data
         run: |
-          curl -s -X POST "https://wkgqvekoinagrswusjhq.supabase.co/auth/v1/signup" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          ANON="${{ secrets.SUPABASE_ANON_KEY }}"
+          BASE="https://wkgqvekoinagrswusjhq.supabase.co"
+          curl -s -X POST "$BASE/auth/v1/signup" \
+            -H "apikey: $ANON" -H "Content-Type: application/json" \
+            -d '{"email":"robot@zeroto.fit","password":"RobotTest2026!"}' > /dev/null || true
+          TOKEN=$(curl -s -X POST "$BASE/auth/v1/token?grant_type=password" \
+            -H "apikey: $ANON" -H "Authorization: Bearer $ANON" \
             -H "Content-Type: application/json" \
-            -d '{"email":"robot@zeroto.fit","password":"RobotTest2026!"}' || true
+            -d '{"email":"robot@zeroto.fit","password":"RobotTest2026!"}' \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['access_token']+'|'+d['user']['id'])")
+          ACCESS=$(echo $TOKEN | cut -d'|' -f1)
+          USER_ID=$(echo $TOKEN | cut -d'|' -f2)
+          DATA='{"weights":[{"date":"2026-03-01","lbs":258},{"date":"2026-03-15","lbs":255},{"date":"2026-04-01","lbs":252},{"date":"2026-04-15","lbs":249},{"date":"2026-04-21","lbs":246}],"goalLbs":196,"heightCm":188,"ageYears":32,"trainingDays":3,"onboardingComplete":true,"feedOptIn":false,"testIsPremium":true,"aiPlan":null,"calorieBurns":[]}'
+          curl -s -X POST "$BASE/rest/v1/fitness_data" \
+            -H "apikey: $ANON" -H "Authorization: Bearer $ACCESS" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates" \
+            -d "{\"id\":\"$USER_ID\",\"data\":$DATA,\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+            && echo "Test data upserted" || echo "Upsert failed (non-fatal)"
 
       - name: Run Firebase Test Lab (Robo crawl)
         run: |

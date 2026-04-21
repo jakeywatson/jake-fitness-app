@@ -1,34 +1,48 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import Svg, { Line, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { COLORS, START_LBS, GOAL_LBS, MILESTONES } from '../constants/data';
+import { COLORS, MILESTONES } from '../constants/data';
 
 const lbsToStone = l => `${Math.floor(l/14)}st ${Math.round(l%14)}lb`;
+const lbsToKg = l => `${(l * 0.453592).toFixed(1)} kg`;
 const todayStr = () => new Date().toISOString().split('T')[0];
 
 export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade }) {
-  const { weights = [], wegovy } = appState;
+  const { weights = [], goalLbs } = appState;
+  const GOAL_LBS = goalLbs || 196;
+  const START_LBS = weights.length ? Math.max(...weights.map(d=>d.lbs)) : GOAL_LBS + 56;
+
   const [stoneVal, setStoneVal] = useState('');
   const [lbVal, setLbVal] = useState('');
-  const [unit, setUnit] = useState('stone');
+  const [unit, setUnit] = useState('stone'); // stone | lbs | kg
 
   const latest = weights.length ? weights[weights.length-1].lbs : START_LBS;
   const lowest = weights.length ? Math.min(...weights.map(d=>d.lbs)) : START_LBS;
+  // lost = positive means lost weight (good), negative means gained
   const lost = START_LBS - latest;
   const toGo = latest - GOAL_LBS;
-  const pct = Math.max(0, Math.min(100, Math.round(((START_LBS-latest)/(START_LBS-GOAL_LBS))*100)));
+  const pct = Math.max(0, Math.min(100, Math.round(((START_LBS-latest)/(START_LBS-GOAL_LBS||1))*100)));
 
-  const daysAgo = wegovy ? Math.floor(Date.now()/86400000) - wegovy : null;
-  const wegovyStatus = daysAgo === null ? { label:'Not recorded yet', color:COLORS.muted }
-    : daysAgo <= 5 ? { label:`${daysAgo}d ago — on track ✓`, color:COLORS.green }
-    : daysAgo <= 7 ? { label:`${daysAgo}d ago — due soon`, color:COLORS.yellow }
-    : { label:`${daysAgo}d ago — OVERDUE`, color:COLORS.red };
+  const formatWeight = (lbs) => {
+    if (unit === 'kg') return lbsToKg(lbs);
+    if (unit === 'lbs') return `${Math.round(lbs)} lbs`;
+    return lbsToStone(lbs);
+  };
 
   const addWeight = () => {
     let lbs;
-    if (unit === 'stone') lbs = (parseFloat(stoneVal)||0)*14 + (parseFloat(lbVal)||0);
-    else lbs = parseFloat(stoneVal);
-    if (!lbs || lbs < 100 || lbs > 500) { Alert?.alert?.('Check weight', 'Please enter a valid weight.'); return; }
+    if (unit === 'stone') {
+      lbs = (parseFloat(stoneVal)||0)*14 + (parseFloat(lbVal)||0);
+    } else if (unit === 'lbs') {
+      lbs = parseFloat(stoneVal);
+    } else {
+      // kg input
+      lbs = (parseFloat(stoneVal)||0) / 0.453592;
+    }
+    if (!lbs || lbs < 50 || lbs > 700) {
+      Alert?.alert?.('Check weight', 'Please enter a valid weight.');
+      return;
+    }
     const entry = { date: todayStr(), lbs: Math.round(lbs*10)/10 };
     const newWeights = [...weights.filter(w=>w.date!==entry.date), entry].sort((a,b)=>a.date.localeCompare(b.date));
     dispatch({ type:'SET_WEIGHTS', payload: newWeights });
@@ -59,26 +73,23 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
   const gY = ty(GOAL_LBS);
   const pathD = data.length > 1 ? data.map((d,i)=>`${i===0?'M':'L'}${tx(i).toFixed(1)},${ty(d.lbs).toFixed(1)}`).join(' ') : '';
 
+  const lostLabel = lost >= 0
+    ? `${Math.abs(Math.round(lost*10)/10)} lbs`
+    : `+${Math.abs(Math.round(lost*10)/10)} lbs`;
+  const lostColor = lost >= 0 ? COLORS.green : COLORS.red;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.pageTitle}>Weight</Text>
 
-      {/* Wegovy */}
-      <View style={[styles.card, daysAgo >= 7 && styles.cardRed]}>
-        <Text style={styles.cardLabel}>WEGOVY 💉</Text>
-        <View style={styles.row}>
-          <Text style={[styles.wegovyStatus, { color: wegovyStatus.color }]}>{wegovyStatus.label}</Text>
-          <TouchableOpacity style={styles.jabBtn} onPress={()=>dispatch({ type:'LOG_WEGOVY', payload: Math.floor(Date.now()/86400000) })}>
-            <Text style={styles.jabBtnText}>Log jab</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Stats */}
+      {/* Stats grid */}
       <View style={styles.statsGrid}>
-        {[['Current', lbsToStone(latest), COLORS.text], ['Goal', lbsToStone(GOAL_LBS), COLORS.green],
-          ['Lost', (lost>0?'−':'+')+Math.abs(Math.round(lost*10)/10)+' lbs', lost>0?COLORS.green:COLORS.red],
-          ['To go', toGo.toFixed(1)+' lbs', COLORS.yellow]].map(([l,v,c])=>(
+        {[
+          ['Current', formatWeight(latest), COLORS.text],
+          ['Goal', formatWeight(GOAL_LBS), COLORS.green],
+          ['Lost', lostLabel, lostColor],
+          ['To go', toGo > 0 ? `${toGo.toFixed(1)} lbs` : '🎯 Reached!', toGo > 0 ? COLORS.yellow : COLORS.green],
+        ].map(([l,v,c])=>(
           <View key={l} style={styles.statCard}>
             <Text style={styles.statCardLabel}>{l}</Text>
             <Text style={[styles.statCardVal, {color:c}]}>{v}</Text>
@@ -109,7 +120,7 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
         ) : (
           <Svg width={chartW} height={chartH+20}>
             <Line x1={0} y1={gY} x2={chartW} y2={gY} stroke="#4ade8044" strokeWidth={1} strokeDasharray="4,4" />
-            <SvgText x={chartW-2} y={gY-4} fontSize={9} fill="#4ade8088" textAnchor="end">Goal 14st</SvgText>
+            <SvgText x={chartW-2} y={gY-4} fontSize={9} fill="#4ade8088" textAnchor="end">Goal</SvgText>
             {pathD ? <Path d={pathD} fill="none" stroke={COLORS.blue} strokeWidth={2} strokeLinejoin="round" /> : null}
             {data.map((d,i)=>(
               <Circle key={i} cx={tx(i)} cy={ty(d.lbs)} r={i===data.length-1?4:3}
@@ -123,11 +134,11 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
         </View>
       </View>
 
-      {/* Log weight */}
+      {/* Log weight — with unit toggle incl. metric */}
       <View style={styles.card}>
         <Text style={styles.cardLabel}>LOG TODAY'S WEIGHT</Text>
         <View style={styles.unitRow}>
-          {['stone','lbs'].map(u=>(
+          {['stone','lbs','kg'].map(u=>(
             <TouchableOpacity key={u} style={[styles.unitBtn, unit===u && styles.unitBtnActive]} onPress={()=>setUnit(u)}>
               <Text style={[styles.unitBtnText, unit===u && styles.unitBtnTextActive]}>{u}</Text>
             </TouchableOpacity>
@@ -137,17 +148,32 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
           <View style={styles.inputRow}>
             <View style={styles.inputWrap}>
               <Text style={styles.inputLabel}>Stone</Text>
-              <TextInput style={styles.input} value={stoneVal} onChangeText={setStoneVal} placeholder="17" placeholderTextColor={COLORS.muted} keyboardType="numeric" />
+              <TextInput
+                style={styles.input} value={stoneVal} onChangeText={v=>setStoneVal(v.replace(/[^0-9]/g,''))}
+                placeholder="17" placeholderTextColor={COLORS.muted} keyboardType="numeric"
+                maxLength={3} testID="weight-stone-input"
+              />
             </View>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Lbs</Text>
-              <TextInput style={styles.input} value={lbVal} onChangeText={setLbVal} placeholder="8" placeholderTextColor={COLORS.muted} keyboardType="numeric" />
+              <Text style={styles.inputLabel}>Lbs (0–13)</Text>
+              <TextInput
+                style={styles.input} value={lbVal} onChangeText={v=>{const n=parseInt(v)||0; setLbVal(n>13?'13':v.replace(/[^0-9]/g,''));}}
+                placeholder="8" placeholderTextColor={COLORS.muted} keyboardType="numeric"
+                maxLength={2} testID="weight-lbs-input"
+              />
             </View>
           </View>
         ) : (
-          <TextInput style={[styles.input, {marginBottom:12}]} value={stoneVal} onChangeText={setStoneVal} placeholder="e.g. 248" placeholderTextColor={COLORS.muted} keyboardType="numeric" />
+          <TextInput
+            style={[styles.input, {marginBottom:12}]}
+            value={stoneVal}
+            onChangeText={v=>setStoneVal(v.replace(/[^0-9.]/g,''))}
+            placeholder={unit === 'kg' ? 'e.g. 115' : 'e.g. 248'}
+            placeholderTextColor={COLORS.muted} keyboardType="numeric"
+            maxLength={6} testID="weight-lbs-input"
+          />
         )}
-        <TouchableOpacity style={styles.logBtn} onPress={addWeight}>
+        <TouchableOpacity style={styles.logBtn} onPress={addWeight} testID="log-weight-btn">
           <Text style={styles.logBtnText}>+ Log weight</Text>
         </TouchableOpacity>
       </View>
@@ -186,7 +212,7 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
             <View key={w.date} style={styles.entryRow}>
               <View>
                 <Text style={styles.entryDate}>{w.date}</Text>
-                <Text style={styles.entryWeight}>{lbsToStone(w.lbs)}</Text>
+                <Text style={styles.entryWeight}>{lbsToStone(w.lbs)}{unit==='kg'?` · ${lbsToKg(w.lbs)}`:''}</Text>
               </View>
               <TouchableOpacity style={styles.delBtn} onPress={()=>deleteWeight(w.date)}>
                 <Text style={styles.delBtnText}>✕</Text>
@@ -196,7 +222,7 @@ export default function WeightScreen({ appState, dispatch, isPremium, onUpgrade 
         )}
       </View>
 
-      {/* Account section */}
+      {/* Account */}
       <View style={styles.accountCard}>
         <Text style={styles.accountLabel}>ACCOUNT</Text>
         {!isPremium && (
@@ -226,12 +252,8 @@ const styles = StyleSheet.create({
   content: { padding:16, paddingBottom:40 },
   pageTitle: { fontSize:28, fontWeight:'700', color:COLORS.text, marginBottom:16 },
   card: { backgroundColor:COLORS.card, borderRadius:12, padding:16, marginBottom:12, borderWidth:1, borderColor:COLORS.border },
-  cardRed: { borderColor:COLORS.redDark },
   cardLabel: { fontSize:10, letterSpacing:3, color:COLORS.muted, marginBottom:8 },
   row: { flexDirection:'row', justifyContent:'space-between', alignItems:'center' },
-  wegovyStatus: { fontSize:14, fontWeight:'600' },
-  jabBtn: { backgroundColor:COLORS.card, borderWidth:1, borderColor:COLORS.border2, borderRadius:8, paddingHorizontal:14, paddingVertical:8 },
-  jabBtnText: { color:COLORS.muted, fontSize:12 },
   statsGrid: { flexDirection:'row', flexWrap:'wrap', gap:8, marginBottom:12 },
   statCard: { flex:1, minWidth:'45%', backgroundColor:COLORS.card, borderRadius:12, padding:14, borderWidth:1, borderColor:COLORS.border },
   statCardLabel: { fontSize:10, letterSpacing:2, color:COLORS.muted, textTransform:'uppercase', marginBottom:4 },

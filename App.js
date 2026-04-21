@@ -80,7 +80,8 @@ export default function App() {
     const data = await loadUserData(u.id);
     if (data) dispatch({ type: 'LOAD', payload: data });
     await initPurchases(u.id);
-    const premium = await checkPremiumStatus();
+    // Allow testIsPremium flag in Supabase data to bypass paywall (e.g. for Firebase Test Lab)
+    const premium = data?.testIsPremium || await checkPremiumStatus();
     setIsPremium(premium);
   };
 
