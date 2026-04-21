@@ -88,7 +88,12 @@ export async function signInWithGoogle() {
   });
   if (error) throw error;
 
-  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri);
+  // createTask: true forces a Chrome Custom Tab on Android
+  // Without this Google returns 403 disallowed_useragent (blocks embedded WebViews)
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri, {
+    createTask: true,
+    preferEphemeralSession: false,
+  });
   if (result.type !== 'success') return null;
 
   const url = new URL(result.url);

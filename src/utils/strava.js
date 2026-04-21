@@ -13,7 +13,10 @@ WebBrowser.maybeCompleteAuthSession();
 export async function connectStrava() {
   const redirectUri = AuthSession.makeRedirectUri({ scheme: 'zerotofit', path: 'strava-auth' });
   const authUrl = `${STRAVA_AUTH_URL}?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&approval_prompt=auto&scope=activity:write,activity:read_all`;
-  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri, {
+    createTask: true,
+    preferEphemeralSession: false,
+  });
 
   if (result.type !== 'success') return null;
   const code = new URL(result.url).searchParams.get('code');
