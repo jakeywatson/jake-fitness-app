@@ -1,0 +1,83 @@
+name: Firebase Crawl Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  firebase-test:
+    name: Firebase Test Lab
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download latest APK artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-apk.yml
+          name: zero-to-fit-debug
+          path: ./apk
+
+      - name: Find APK
+        id: find-apk
+        run: echo "apk=$(find ./apk -name '*.apk' | head -1)" >> $GITHUB_OUTPUT
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Ensure test account exists
+        run: |
+          curl -s -X POST "https://wkgqvekoinagrswusjhq.supabase.co/auth/v1/signup" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"robot@zeroto.fit","password":"RobotTest2026!"}' || true
+
+      - name: Run Firebase Test Lab (Robo crawl)
+        run: |
+          gcloud firebase test android run \
+            --type robo \
+            --app ${{ steps.find-apk.outputs.apk }} \
+            --device model=Pixel2.arm,version=28,locale=en,orientation=portrait \
+            --device model=MediumPhone.arm,version=28,locale=en,orientation=portrait \
+            --timeout 5m \
+            --robo-directives \
+              "ignore:google-btn=,text:email-input=robot@zeroto.fit,text:password-input=RobotTest2026!" \
+            --results-bucket gs://jake-fitness-test-results \
+            --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
+            2>&1 | tee firebase_output.txt
+        continue-on-error: true
+
+      - name: Parse and display results
+        run: |
+          echo "=== Firebase Test Lab Results ==="
+          cat firebase_output.txt || true
+          if grep -q "Passed" firebase_output.txt 2>/dev/null; then
+            echo "✅ ROBO TEST PASSED"
+          elif grep -q "Failed\|FAILED" firebase_output.txt 2>/dev/null; then
+            echo "❌ ROBO TEST FAILED"
+          fi
+
+      - name: Download test results
+        if: always()
+        run: |
+          mkdir -p test-results
+          RESULTS=$(grep -o 'gs://[^ ]*' firebase_output.txt 2>/dev/null | head -1 || echo "")
+          if [ -n "$RESULTS" ]; then
+            gsutil -m cp -r "$RESULTS" ./test-results/ 2>/dev/null || true
+          fi
+
+      - name: Upload Firebase results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-test-results
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
