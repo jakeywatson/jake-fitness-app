@@ -120,7 +120,6 @@ jobs:
 
       - name: Create test account in Supabase
         run: |
-          # Create/ensure test account exists (ignores error if already exists)
           curl -s -X POST "https://wkgqvekoinagrswusjhq.supabase.co/auth/v1/signup" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json" \
@@ -135,7 +134,7 @@ jobs:
             --device model=MediumPhone.arm,version=28,locale=en,orientation=portrait \
             --timeout 5m \
             --robo-directives \
-              "text:email-input=robot@zeroto.fit,text:password-input=RobotTest2026!,click:sign-in-btn=0" \
+              "ignore:google-btn=,text:email-input=robot@zeroto.fit,text:password-input=RobotTest2026!" \
             --results-bucket gs://jake-fitness-test-results \
             --results-dir "run_$(date +%Y%m%d_%H%M%S)" \
             2>&1 | tee firebase_output.txt

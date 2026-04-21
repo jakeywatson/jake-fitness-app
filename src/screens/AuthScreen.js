@@ -86,7 +86,7 @@ export default function AuthScreen({ onAuth }) {
 
         {/* Social sign-in — shown first, most prominent */}
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={styles.googleBtn} onPress={handleGoogle} disabled={!!socialLoading}>
+          <TouchableOpacity style={styles.googleBtn} onPress={handleGoogle} disabled={!!socialLoading} testID="google-btn">
             {socialLoading === 'google'
               ? <ActivityIndicator color="#1f1f1f" />
               : <>

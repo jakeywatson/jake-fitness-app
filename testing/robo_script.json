@@ -1,0 +1,24 @@
+{
+  "roboscript": {
+    "commands": [
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [{"resourceId": ".*sign-in-btn.*"}]
+      },
+      {
+        "eventType": "VIEW_TEXT_CHANGED",
+        "replacementText": "robot@zeroto.fit",
+        "elementDescriptors": [{"resourceId": ".*email-input.*"}]
+      },
+      {
+        "eventType": "VIEW_TEXT_CHANGED",
+        "replacementText": "RobotTest2026!",
+        "elementDescriptors": [{"resourceId": ".*password-input.*"}]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [{"resourceId": ".*sign-in-btn.*"}]
+      }
+    ]
+  }
+}
