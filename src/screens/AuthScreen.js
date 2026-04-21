@@ -142,6 +142,7 @@ export default function AuthScreen({ onAuth }) {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            testID="email-input"
           />
           <Text style={styles.inputLabel}>Password</Text>
           <TextInput
@@ -151,6 +152,7 @@ export default function AuthScreen({ onAuth }) {
             placeholder="6+ characters"
             placeholderTextColor={COLORS.muted}
             secureTextEntry
+            testID="password-input"
           />
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -160,6 +162,7 @@ export default function AuthScreen({ onAuth }) {
             style={[styles.submitBtn, loading && { opacity: 0.7 }]}
             onPress={handleSubmit}
             disabled={loading}
+            testID="sign-in-btn"
           >
             {loading
               ? <ActivityIndicator color="#fff" />
